@@ -1,0 +1,11 @@
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui">
+    <ribbon startFromScratch="false">
+        <tabs>
+            <tab id="TabE365" label="Efficiency 365">
+                <group id="E365Functions2" label="Draw Data">
+                    <button id="E365DrawData" label ="Draw Data" imageMso="BorderDrawLine" size="large" screentip="Draw data." supertip="Draw data." onAction="DrawDataUIAction" />
+                </group>
+            </tab>
+        </tabs>
+    </ribbon>
+</customUI>
