@@ -1,0 +1,8 @@
+# Office temporary files
+*.tmp
+~$*.ppt*
+~$*.doc*
+~$*.xls*
+
+# output directories
+out/
