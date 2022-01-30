@@ -1,15 +1,21 @@
 Attribute VB_Name = "FormUI"
 Option Explicit
 
+Private Const MACROTITLE = "Numbers To Words"
 
 Public Sub ShowInsertFunctionForm()
-    If Not Selection Is Nothing Then
-        If Selection.Cells.Count = 1 Then
-            InsertFunctionForm.Show vbModal
-        Else
-            MsgBox "Please select exactly one cell."
-        End If
+    On Error GoTo ShowInsertFunctionFormErr
+    
+    If Selection.Cells.Count = 1 Then
+        InsertFunctionForm.Show vbModal
+    Else
+        MsgBox "Please select exactly one cell.", vbExclamation, MACROTITLE
     End If
+
+    Exit Sub
+ShowInsertFunctionFormErr:
+    MsgBox "Please select a blank cell in a worksheet and invoke this macro.", _
+            vbExclamation, MACROTITLE
 End Sub
 
 Public Sub ShowInsertFunctionFormUIAction(button As IRibbonControl)
@@ -17,9 +23,12 @@ Public Sub ShowInsertFunctionFormUIAction(button As IRibbonControl)
 End Sub
 
 Public Sub OpenDocumentation(button As IRibbonControl)
-    On Error Resume Next
+    On Error GoTo OpenDocumentationErr   
+        
+    ActiveWorkbook.FollowHyperlink Address:="https://efficiency365.com/2017/01/02/amount-to-words-macro/", NewWindow:=True
     
-    If Not ActiveWorkbook Is Nothing Then
-        ActiveWorkbook.FollowHyperlink Address:="https://efficiency365.com/2017/01/02/amount-to-words-macro/", NewWindow:=True
-    End If
+    Exit Sub
+OpenDocumentationErr:
+    MsgBox "Could not open documentation. At least one workbook needs to be open.", _
+            vbExclamation, MACROTITLE
 End Sub

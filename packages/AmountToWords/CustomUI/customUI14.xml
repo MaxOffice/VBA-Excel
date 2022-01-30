@@ -3,7 +3,7 @@
         <tabs>
             <tab id="TabE365" label="Efficiency 365">
                 <group id="E365Functions" label="AmountToWords">
-                    <button id="E365InsertAmountToWords" showLabel="false" label ="Generate Function" image="Amt2Words" size="large" screentip="Generate syntax interactively" supertip="Generate the function syntax using a dialog. Customize the syntax and choose Insert into current cell button" onAction="FormUI.ShowInsertFunctionForm" />
+                    <button id="E365InsertAmountToWords" showLabel="false" label ="Generate Function" image="Amt2Words" size="large" screentip="Generate syntax interactively" supertip="Generate the function syntax using a dialog. Customize the syntax and choose Insert into current cell button" onAction="FormUI.ShowInsertFunctionFormUIAction" />
                     <button id="E365ShowHelp" label ="Show Syntax" imageMso="TentativeAcceptInvitation" size="large" screentip="Show Syntax" supertip="View detailed help. Each parameter is explained in detail with an example." onAction="FormUI.OpenDocumentation" />
                 </group>
             </tab>

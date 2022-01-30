@@ -16,6 +16,8 @@ Attribute VB_Exposed = False
 
 Option Explicit
 
+Private Const MACROTITLE = "Numbers To Words"
+
 Private initialized As Boolean
 Private WithEvents app As Application
 Attribute app.VB_VarHelpID = -1
@@ -79,10 +81,12 @@ Private Sub ShowSample()
     Exit Sub
 ShowSampleErr:
     If Err.number = 6 Then
-        MsgBox "The amount provided is too large for the AmountToWords function"
+        MsgBox "The amount provided is too large for the AmountToWords function.", _
+                vbExclamation, MACROTITLE
         ClearSample
     Else
-        MsgBox "An unforseen error happened"
+        MsgBox "An unforseen error happened.", _
+                vbExclamation, MACROTITLE
     End If
 End Sub
 
