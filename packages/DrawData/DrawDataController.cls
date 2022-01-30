@@ -9,6 +9,8 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
+Private Const MACROTITLE = "Draw Data"
+
 Private WithEvents m_workbook As Workbook
 Attribute m_workbook.VB_VarHelpID = -1
 Private WithEvents m_view As DrawDataViewForm
@@ -119,7 +121,8 @@ Private Sub ConvertResultRangeToTable(resultRange As Range)
     Exit Sub
 ConvertResultRangeToTableErr:
     If Err.Number = 1004 Then
-        MsgBox "The output range will overlap an existing table. Please choose a different location."
+        MsgBox "The output range will overlap an existing table. Please choose a different location.", _
+                vbExclamation, MACROTITLE
     Else
         Err.Raise Err.Number, Err.Source, Err.Description
     End If
@@ -148,7 +151,8 @@ m_view_ApplyChangesErr:
         If errorCount < 10 Then
             Resume m_view_output
         Else
-            MsgBox "An unforeseen error has happened. We are sorry about this. Please inform the developer that error no. 1004 has happened."
+            MsgBox "An unforeseen error has happened. We are sorry about this. Please inform the developer that error no. 1004 has happened.", _
+                    vbExclamation, MACROTITLE
             errorCount = 0
         End If
     Else
