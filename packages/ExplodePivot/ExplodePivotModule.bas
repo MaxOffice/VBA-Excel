@@ -259,15 +259,20 @@ Private Function SelectedItems(f As PivotField) As Integer
         result = 0
     Else
         Dim item As PivotItem
-        result = 0
-        For Each item In f.PivotItems
-            If item.Visible Then
-                result = result + 1
+        
+        If f.AllItemsVisible Then
+            result = f.PivotItems.Count
+        Else
+            result = 0
+            For Each item In f.PivotItems
+                If item.Visible Then
+                    result = result + 1
+                End If
+            Next
+            ' If (all) is selected, result is 0
+            If result = 0 Then
+                result = f.ParentItems.Count
             End If
-        Next
-        ' If (all) is selected, result is 0
-        If result = 0 Then
-            result = f.ParentItems.Count
         End If
     End If
     SelectedItems = result
