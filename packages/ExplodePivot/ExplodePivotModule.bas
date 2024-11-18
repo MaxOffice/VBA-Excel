@@ -44,54 +44,51 @@ Public Sub PivotFilterExplode()
                 vbCrLf & "and then run this macro.", vbExclamation, MACROTITLE
             Exit Sub
     End If
-        
-    ' check existing sheets - currsheets
-    ' check items in filter area - filtercnt
-    ' check if currsheets+filtercnt <255 (it is just a sample number)
-    ' in reality there is no limit on number of sheets (as long as memory is not exhausted)
-    
-    ' If you want to implement a limit just uncomment the code below and put the number you like
-    
-    
-    '    If basefield.PivotItems.Count + baseWorkbook.Sheets.Count > 255 Then
-    '        MsgBox "The number of sheets to be created exceeds the limit of 255." & _
-    '        vbCrLf & "Please reduce number of filter items and try again", _
-    '        vbCritical
-    '        Exit Sub
-    '    End If
-            
-    
+   
     ' If filter field has only one item selected, then there is no point in going ahead
-    Dim selectedFilterValues As Integer
-    selectedFilterValues = SelectedItems(basefield)
+    Dim selectedFilterValuesCount As Integer
+    selectedFilterValuesCount = SelectedItems(basefield)
     
-    If selectedFilterValues < 2 Then
+    If selectedFilterValuesCount < 2 Then
         MsgBox "There is only one item in the selected field." & _
                 vbCrLf & "There is no need to explode this Pivot Table.", vbExclamation, MACROTITLE
         Exit Sub
     End If
     
-    ' Inform user and get consent to proceed
-    If MsgBox( _
-        "The Pivot Table will be exploded by items in the " & basefield.Name & " field. " & _
-        vbCrLf & selectedFilterValues & " new workbooks will be created." & _
-        vbCrLf & "If the data is missing for a particular filter item, the pivot table will be empty." & _
-        vbCrLf & "Proceed?", _
-        vbYesNo + vbInformation, _
-        MACROTITLE _
-    ) = vbNo Then
+    ' Check existing sheets - baseWorkbook.Sheets.Count
+    ' Check items in filter area - selectedFilterValuesCount
+    ' Check if baseWorkbook.Sheets.Count + selectedFilterValuesCount <255 (it is just a sample number)
+    ' In reality there is no limit on number of sheets (as long as memory is not exhausted)
+    ' If you want to implement a limit just uncomment the code below and put the number you like
+    '
+    ' If baseWorkbook.Sheets.Count + selectedFilterValuesCount > 255 Then
+    '     MsgBox "The number of sheets to be created exceeds the limit of 255." & _
+    '     vbCrLf & "Please reduce number of filter items and try again", _
+    '     vbInformation + vbOkOnly
+    '     Exit Sub
+    ' End If
+
+    
+    ' Inform user and get consent and other parameters to proceed
+    Dim f As ExplodePivotForm
+    Set f = New ExplodePivotForm
+    f.Caption = MACROTITLE
+    Set f.SelectionField = basefield
+    f.Show vbModal
+    
+    ' If user chose to cancel, get out now
+    If f.result = vbNo Then
         Exit Sub
     End If
-
         
     '---------------------------------------------------------------------
     ' Actual explode
     '---------------------------------------------------------------------
-    
-    
+        
     ' Keep list of existing sheet names
     Dim sht As Worksheet
     
+    ' Compile a list of worksheets already present in the workbook
     Dim oldSheets As String
     oldSheets = ","
     For Each sht In baseWorkbook.Sheets
@@ -100,6 +97,8 @@ Public Sub PivotFilterExplode()
     
     ' Explode the pivot table using the .ShowPages method
     basepivot.ShowPages (basefield)
+    
+    Dim doNotEmail As Boolean
     
     For Each sht In baseWorkbook.Sheets
         ' If it is a new sheet
@@ -152,104 +151,85 @@ Public Sub PivotFilterExplode()
             
             newPivotSheet.Activate
             
-            ' DO NOT save the newly created file (not really required)
+            
+            Dim fileName As String
+            
+            ' Save the newly created workbook, if required
+            If f.SaveSheets Then
+                fileName = Left$(f.BaseFilename, Len(f.BaseFilename) - 5) & " - " & newPivot.Name
+                If Len(fileName) > 250 Then
+                    fileName = Left$(fileName, 250)
+                End If
+                fileName = fileName & ".xlsx"
+                newWorkbook.SaveAs fileName:=fileName, AddToMru:=False
+            End If
+            
+            
+            
+            ' Attempt to Email the newly created workbook, if required
+            If f.EmailSheets And Not doNotEmail Then
+                Dim recipient As String
+                Dim pmItem As PivotEmailItem
+                
+                
+                Set pmItem = f.EmailItems(newPivot.Name)
+                If Not pmItem Is Nothing Then
+                    If Not pmItem.EmailEmpty Then
+                        recipient = pmItem.Email
+                        fileName = newPivot.Name & ".xlsx"
+                        
+                        On Error Resume Next
+                        Err.Clear
+                        
+                        newWorkbook.SendMail Recipients:=recipient, Subject:="Attached: " & fileName
+                        
+                        If Err.Number <> 0 Then
+                            Dim proceed As VbMsgBoxResult
+                            proceed = MsgBox( _
+                                "An error occured while trying to email " & fileName & ":" & _
+                                vbCrLf & Err.Description & _
+                                vbCrLf & "Should I try to email the rest of the sheets?" & _
+                                vbCrLf & "Choose Cancel to stop the explode operation completely", _
+                                vbInformation + vbYesNoCancel, _
+                                MACROTITLE _
+                            )
+                            
+                            If proceed = vbCancel Then
+                                Exit Sub
+                            ElseIf proceed = vbNo Then
+                                doNotEmail = True
+                            End If
+                        End If
+                        
+                        On Error GoTo PivotFilterExplodeErr
+                    End If
+                End If
+            End If
             
         End If ' If it is a new sheet
     
     Next ' Move to next sheet
     
     ' Inform about what just happened
-    
-    MsgBox selectedFilterValues & " new workbooks have been created." & _
-            vbCrLf & "Each one has data filtered by items in the " & basefield.Name & " field." & _
-            vbCrLf & "These files have not been saved." & _
-            vbCrLf & "You need to save these files or discard them, as required." _
-            , vbInformation, MACROTITLE
-    
+    Dim finalMessage As String
+    finalMessage = selectedFilterValuesCount & " new workbooks have been created." & _
+                vbCrLf & "Each one has data filtered by items in the " & basefield.Name & " field."
+    If f.SaveSheets Then
+        finalMessage = finalMessage & vbCrLf & "These files have been saved as " & _
+                        Left$(f.BaseFilename, Len(f.BaseFilename) - 5) & "*.xslx."
+    Else
+        finalMessage = finalMessage & vbCrLf & "These files have not been saved." & _
+            vbCrLf & "You need to save these files or discard them, as required."
+    End If
+            
+    MsgBox finalMessage, vbInformation, MACROTITLE
     
     ' That's it. Job done!!
     Exit Sub
     
 PivotFilterExplodeErr:
-    MsgBox "Sorry.Something went wrong.", vbExclamation, MACROTITLE
+    MsgBox "Sorry. Something went wrong." & Err.Description & Err.Source, vbExclamation, MACROTITLE
 End Sub
-
-
-'---------------------------------------------------------------------
-'Pseudocode
-'(actual code may not be exactly in sync with this, but this will give you an idea of the logic used)
-
-'---------------------------------------------------------------------
-'set up environment
-'---------------------------------------------------------------------
-'one lengthy processing flag - longprocess bool
-        'how to detect potentially long processing
-        'file size
-        'if more than x no of items in filter area
-
-'---------------------------------------------------------------------
-'pre-error handling
-'---------------------------------------------------------------------
-        
-'check if cursor is in pivot table
-    'if not error and exit
-    'if yes continue
-    
-'check if pivot has anything in filter area
-    'if not msg that filter is required and exit
-    'if yes
-        'check if multiple fields in filter area
-        'if yes ask which field to explode by
-        'check existing sheets - currsheets
-        'check items in filter area - filtercnt
-        'check if currsheets+filtercnt <255
-            'if yes, error and exit
-            'if no, continue
-            
-        
-'explode selected field
-        'message that explode will be done on field x and n no of new files will be created
-    
-'question: should the file be saved before the operation?
-'most macros dont do this
-
-'---------------------------------------------------------------------
-'actual explode
-'---------------------------------------------------------------------
-
-'keep list of existing sheet names
-
-'explode the pivot table using the .showpages method
-
-'get list of sheet names again
-
-'compare the two and iterate on new sheets
-
-'keep reference to the original file
-
-'---------------------------------------------------------------------
-'process each newly created sheet
-'---------------------------------------------------------------------
-'for each sheet
-    '.move to create a new workbook with this sheet
-    'it is automatically activated so get reference to the first pivot in it
-    'get datarange and go to the bottom right cell (range.cells(rows.count, columns.count)
-    'use .showdetail to create the raw data sheet
-    'this sheet has table containing the raw data. table is always called Table1
-    '(in future research on this. if this is dicey, get the reference to this table)
-    
-    'now create new pivotcache by connecting it to this table
-    'change the name of the pivot table = the filter field item name
-    
-    '(decide whether to delete that sheet - better to keep it)
-    'activate the pivot table sheet
-    'DO NOT save the newly created file (not really required)
-'move to the next sheet in base file
-
-'show end message with no of files created
-'end
-
-'--------------------------------------------
 
 ' This function is required because the .VisibleItems
 ' property of a PivotField does not work as expected.
@@ -259,20 +239,15 @@ Private Function SelectedItems(f As PivotField) As Integer
         result = 0
     Else
         Dim item As PivotItem
-        
-        If f.AllItemsVisible Then
-            result = f.PivotItems.Count
-        Else
-            result = 0
-            For Each item In f.PivotItems
-                If item.Visible Then
-                    result = result + 1
-                End If
-            Next
-            ' If (all) is selected, result is 0
-            If result = 0 Then
-                result = f.ParentItems.Count
+        result = 0
+        For Each item In f.PivotItems
+            If item.Visible Then
+                result = result + 1
             End If
+        Next
+        ' If (all) is selected, result is 0
+        If result = 0 Then
+            result = f.ParentItems.Count
         End If
     End If
     SelectedItems = result
