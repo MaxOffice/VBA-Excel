@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} DrawDataViewForm 
-   Caption         =   "MaxOffice DrawData"
-   ClientHeight    =   2385
+   Caption         =   "Draw Data"
+   ClientHeight    =   2390
    ClientLeft      =   30
    ClientTop       =   360
    ClientWidth     =   5390
@@ -14,6 +14,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
 Option Explicit
 
 Private m_numberOfDataPoints As Long
