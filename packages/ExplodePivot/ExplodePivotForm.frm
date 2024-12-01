@@ -27,23 +27,38 @@ Public Property Set SelectionField(value As PivotField)
     Set m_selectionField = value
     
     Dim itemcount As Long
-    Dim item As PivotItem
-    itemcount = 0
-    For Each item In value.PivotItems
-        If item.Visible Then
-            itemcount = itemcount + 1
-        End If
-    Next
     
-    ' If (all) is selected, itemcount is 0
-    If itemcount = 0 Then
-        itemcount = value.ParentItems.Count
+    If value.EnableMultiplePageItems Then
+        ' Multiple Item Selection is enabled.
+        ' We need to count the visible items.
+        
+        Dim item As PivotItem
+        itemcount = 0
+        For Each item In value.PivotItems
+            If item.Visible Then
+                itemcount = itemcount + 1
+            End If
+        Next
+        
+        ' If (all) is selected, itemcount is 0
+        If itemcount = 0 Then
+            itemcount = value.ParentItems.Count
+        End If
+    Else
+        ' Multiple item selection is not enabled.
+        ' If (All) is selected, the count is all
+        ' the items in the table, otherwise one.
+        If value.AllItemsVisible Then
+            itemcount = value.PivotItems.Count
+        Else
+            itemcount = 1
+        End If
     End If
     
     lblItemHeader = value.Name
     
     lblMessage = "The Pivot Table will be exploded by items in the " & value.Name & " field. " & _
-        vbCrLf & itemcount & " new workbooks will be created." & _
+        vbCrLf & itemcount & " new workbook(s) will be created." & _
         vbCrLf & "If the data is missing for a particular filter item, the pivot table will be empty."
     
     m_selectionCount = itemcount
@@ -157,7 +172,11 @@ End Sub
 Private Sub PopulateEmailsUI()
     Dim allSelected As Boolean
     
-    allSelected = (m_selectionCount = m_selectionField.ParentItems.Count)
+    If m_selectionField.EnableMultiplePageItems Then
+        allSelected = (m_selectionCount = m_selectionField.ParentItems.Count)
+    Else
+        allSelected = m_selectionField.AllItemsVisible
+    End If
     
     Dim item As PivotItem
     Dim newItem As PivotEmailItem
