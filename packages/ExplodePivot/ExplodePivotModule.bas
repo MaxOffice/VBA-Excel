@@ -1,8 +1,11 @@
 Attribute VB_Name = "ExplodePivotModule"
 Option Explicit
 
-
 Private Const MACROTITLE = "Pivot Filter Explode"
+
+Public Const EMPTYBACKCOLOR As Long = &HFFFFFF       ' White
+Public Const INVALIDBACKCOLOR As Long = &HC8C8FF     ' Red
+Public Const VALIDBACKCOLOR As Long = &HFFDCD        ' Green
 
 Public Sub PivotFilterExplode()
     On Error GoTo PivotFilterExplodeErr
@@ -51,7 +54,9 @@ Public Sub PivotFilterExplode()
     
     If selectedFilterValuesCount < 2 Then
         MsgBox "There is only one item in the selected field." & _
-                vbCrLf & "There is no need to explode this Pivot Table.", vbExclamation, MACROTITLE
+                vbCrLf & "There is no need to explode this Pivot Table." & _
+                vbCrLf & "Please enable 'Select Multiple Items', and choose two or more.", _
+                vbExclamation, MACROTITLE
         Exit Sub
     End If
     
@@ -151,6 +156,22 @@ Public Sub PivotFilterExplode()
             
             newPivotSheet.Activate
             
+            ' There are only two sheets in the new workbook
+            Dim rawDataSheet As Worksheet
+            If newPivotSheet.Index = 1 Then
+                Set rawDataSheet = newWorkbook.Sheets(2)
+            Else
+                Set rawDataSheet = newWorkbook.Sheets(1)
+            End If
+            
+            ' Delete or rename the raw data sheet
+            If f.ReduceSize Then
+                Application.DisplayAlerts = False
+                rawDataSheet.Delete
+                Application.DisplayAlerts = True
+            Else
+                rawDataSheet.Name = "Data"
+            End If
             
             Dim fileName As String
             
@@ -163,8 +184,6 @@ Public Sub PivotFilterExplode()
                 fileName = fileName & ".xlsx"
                 newWorkbook.SaveAs fileName:=fileName, AddToMru:=False
             End If
-            
-            
             
             ' Attempt to Email the newly created workbook, if required
             If f.EmailSheets And Not doNotEmail Then

@@ -27,11 +27,11 @@ End Property
 
 Private Sub ItemTextBox_Change()
     If EmailEmpty Then
-        ItemTextBox.BackColor = vbYellow
+        ItemTextBox.BackColor = EMPTYBACKCOLOR
     ElseIf EmailValid Then
-        ItemTextBox.BackColor = vbWhite
+        ItemTextBox.BackColor = VALIDBACKCOLOR
     Else
-        ItemTextBox.BackColor = vbRed
+        ItemTextBox.BackColor = INVALIDBACKCOLOR
     End If
 End Sub
 

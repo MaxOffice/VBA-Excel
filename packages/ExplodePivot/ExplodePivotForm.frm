@@ -1,6 +1,6 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} ExplodePivotForm 
-   ClientHeight    =   4290
+   ClientHeight    =   4610
    ClientLeft      =   110
    ClientTop       =   450
    ClientWidth     =   6690
@@ -69,6 +69,10 @@ End Property
 
 Public Property Get EmailItems() As Collection
     Set EmailItems = m_emailAddresses
+End Property
+
+Public Property Get ReduceSize() As Boolean
+    ReduceSize = chkReduceSize.value
 End Property
 
 Public Property Get result() As VbMsgBoxResult
@@ -180,7 +184,8 @@ Private Sub PopulateEmailsUI()
             With newTextBox
                 .Top = newLabelTop - 5
                 .Left = 150
-                .BackColor = vbYellow
+                .Width = fmEmailDetails.Width - .Left - 30
+                .BackColor = EMPTYBACKCOLOR
                 .Visible = False
             End With
             
