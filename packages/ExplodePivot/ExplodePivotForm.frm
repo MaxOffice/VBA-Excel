@@ -1,5 +1,6 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} ExplodePivotForm 
+   Caption         =   "Pivot Table Filter Split Tool"
    ClientHeight    =   4610
    ClientLeft      =   110
    ClientTop       =   450
@@ -57,7 +58,7 @@ Public Property Set SelectionField(value As PivotField)
     
     lblItemHeader = value.Name
     
-    lblMessage = "The Pivot Table will be exploded by items in the " & value.Name & " field. " & _
+    lblMessage = "The Pivot Table will be split by items in the " & value.Name & " field. " & _
         vbCrLf & itemcount & " new workbook(s) will be created." & _
         vbCrLf & "If the data is missing for a particular filter item, the pivot table will be empty."
     
@@ -144,7 +145,7 @@ End Sub
 Private Sub cmdOk_Click()
     If SaveSheets Then
         If Trim$(txtBaseFilename.Text) = "" Then
-            MsgBox "Please choose a base file name to save exploded sheets.", _
+            MsgBox "Please choose a base file name to save split workbooks.", _
                 vbInformation + vbOKOnly, _
                 Caption
             Exit Sub

@@ -1,7 +1,7 @@
 Attribute VB_Name = "ExplodePivotModule"
 Option Explicit
 
-Private Const MACROTITLE = "Pivot Filter Explode"
+Private Const MACROTITLE = "Pivot Filter Split"
 
 Public Const EMPTYBACKCOLOR As Long = &HFFFFFF       ' White
 Public Const INVALIDBACKCOLOR As Long = &HC8C8FF     ' Red
@@ -34,7 +34,7 @@ Public Sub PivotFilterExplode()
     On Error Resume Next
     Set basefield = rg.PivotField
     If Err.Number <> 0 Then
-        MsgBox "Pivot field not selected. You must select the Pivot Table filter field which you want to explode" & _
+        MsgBox "Pivot field not selected. You must select the Pivot Table filter field which you want to split by" & _
                     " and then run this macro.", vbExclamation, MACROTITLE
         Exit Sub
     End If
@@ -43,7 +43,7 @@ Public Sub PivotFilterExplode()
     ' Check if the field selected is a page filter field
     Set basepivot = basefield.Parent
     If Application.Intersect(rg, basepivot.PageRange) Is Nothing Then
-        MsgBox "Wrong field selected. You must select the Pivot Table filter field which you want to explode" & _
+        MsgBox "Wrong field selected. You must select the Pivot Table filter field which you want to split by" & _
                  " and then run this macro.", vbExclamation, MACROTITLE
             Exit Sub
     End If
@@ -291,7 +291,7 @@ Private Sub ProcessNewWorkbook(ByVal f As ExplodePivotForm, ByRef doNotEmail As 
                         "An error occured while trying to email " & fileName & ":" & _
                         vbCrLf & Err.Description & _
                         vbCrLf & "Should I try to email the rest of the sheets?" & _
-                        vbCrLf & "Choose Cancel to stop the explode operation completely", _
+                        vbCrLf & "Choose Cancel to stop the split operation completely", _
                         vbInformation + vbYesNoCancel, _
                         MACROTITLE _
                     )
