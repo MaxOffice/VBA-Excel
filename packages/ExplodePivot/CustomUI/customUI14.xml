@@ -2,8 +2,8 @@
     <ribbon startFromScratch="false">
         <tabs>
             <tab id="TabE365" label="Efficiency 365">
-                <group id="E365Functions3" label="Explode Pivot">
-                    <button id="E365ExplodePivot" label ="Explode Pivot" imageMso="AdpStoredProcedureQueryMakeTable" size="large" screentip="Explode Pivot." supertip="Explode Pivot." onAction="ExplodePivotUIAction" />
+                <group id="E365Data" label="Data">
+                    <button id="E365ExplodePivot" label ="Split Pivot" image="PivotSplit" size="large" screentip="Split Pivot." supertip="Split a Pivot Table by items in Filter field. Create multiple workbooks containing pivots with filtered data. Send each workbook by email to different people." onAction="ExplodePivotUIAction" />
                 </group>
             </tab>
         </tabs>

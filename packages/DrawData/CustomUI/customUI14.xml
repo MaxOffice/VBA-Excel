@@ -2,8 +2,8 @@
     <ribbon startFromScratch="false">
         <tabs>
             <tab id="TabE365" label="Efficiency 365">
-                <group id="E365Functions2" label="Draw Data">
-                    <button id="E365DrawData" label ="Draw Data" imageMso="BorderDrawLine" size="large" screentip="Draw data." supertip="Draw data." onAction="DrawDataUIAction" />
+                <group id="E365Data" label="Data">
+                    <button id="E365DrawData" label ="Draw Data" imageMso="BorderDrawLine" size="large" screentip="Draw data." supertip="Draw a freeform line and generate data to create a chart." onAction="DrawDataUIAction" />
                 </group>
             </tab>
         </tabs>
