@@ -115,7 +115,7 @@ Public Sub PivotFilterExplode()
         ActiveSheet.Name = basefield.CurrentPage.Name
         
         ' Process the new, currently active workbook
-        ProcessNewWorkbook f, doNotEmail
+        ProcessNewWorkbook f, doNotEmail, basefield.Name
         
         ' Inform about what just happened
         finalMessage = "1 new workbook has been created." & vbCrLf & _
@@ -162,7 +162,7 @@ Public Sub PivotFilterExplode()
         
             ' Process the newly created (and automatically actived)
             ' workbook
-            ProcessNewWorkbook f, doNotEmail
+            ProcessNewWorkbook f, doNotEmail, basefield.Name
             
         End If ' If it is a new sheet
     
@@ -194,7 +194,7 @@ End Sub
 ' containing the currently filtered data only, and re-sources the new Pivot
 ' Table to that new sheet, thus ensuring that the new workbook contains only
 ' filtered data. It also optionally saves and/or emails the new workbook.
-Private Sub ProcessNewWorkbook(ByVal f As ExplodePivotForm, ByRef doNotEmail As Boolean)
+Private Sub ProcessNewWorkbook(ByVal f As ExplodePivotForm, ByRef doNotEmail As Boolean, ByVal fieldName As String)
     ' New workbook is automatically activated so get reference to the
     ' first (and only) pivot table in it
     Dim newWorkbook As Workbook
@@ -280,10 +280,13 @@ Private Sub ProcessNewWorkbook(ByVal f As ExplodePivotForm, ByRef doNotEmail As 
                 recipient = pmItem.Email
                 fileName = newPivot.Name & ".xlsx"
                 
+                Dim mailSubject As String
+                mailSubject = "Report for " & fieldName & " - " & newPivot.Name
+                
                 On Error Resume Next
                 Err.Clear
                 
-                newWorkbook.SendMail Recipients:=recipient, Subject:="Attached: " & fileName
+                newWorkbook.SendMail Recipients:=recipient, Subject:=mailSubject
                 
                 If Err.Number <> 0 Then
                     Dim proceed As VbMsgBoxResult
