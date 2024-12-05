@@ -1,8 +1,12 @@
 Attribute VB_Name = "PasteAsPivotModule"
 Option Explicit
 
-Private Const MACROTITLE = "Paste as Pivot by Dr Nitin Paranjape"
+Private Const MACROTITLE = "Paste as Pivot"
 Private Const SELECTIONERR = "Please select adjacent cells from the data area of any Pivot Table."
+
+Public Sub PasteAsPivotUIAction(button As IRibbonControl)
+    PasteAsPivot
+End Sub
 
 Public Sub PasteAsPivot()
     ' Created by Dr Nitin Paranjape

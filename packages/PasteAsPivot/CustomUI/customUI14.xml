@@ -1,5 +1,11 @@
 <customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui">
     <ribbon startFromScratch="false">
-        <tabs></tabs>
+        <tabs>
+            <tab id="TabE365" label="Efficiency 365">
+                <group id="E365Data" label="Data">
+                    <button id="E365PasteAsPivot" label ="Paste as Pivot" image="pap" size="large" screentip="Paste As Pivot." supertip="Generate multiple GetPivotData from Pivot selection. Useful for copy pasting  Pivot data accurately. Maintains live link with Pivot." onAction="PasteAsPivotUIAction" />
+                </group>
+            </tab>
+        </tabs>
     </ribbon>
 </customUI>
