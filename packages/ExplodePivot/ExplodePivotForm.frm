@@ -19,6 +19,7 @@ Private m_selectionField As PivotField
 Private m_selectionCount As Long
 Private m_result As VbMsgBoxResult
 Private m_emailAddresses As Collection
+Private m_emailAvailable As Boolean
 
 Public Property Get SelectionField() As PivotField
     Set SelectionField = m_selectionField
@@ -77,6 +78,10 @@ End Property
 
 Public Property Let BaseFilename(newValue As String)
     txtBaseFilename.Text = newValue
+End Property
+
+Public Property Get EmailAvailable() As Boolean
+    EmailAvailable = m_emailAvailable
 End Property
 
 Public Property Get EmailSheets() As Boolean
@@ -168,6 +173,15 @@ Private Sub UserForm_Initialize()
     m_result = vbNo
     m_selectionCount = 0
     Set m_emailAddresses = New Collection
+    m_emailAvailable = ExcelEmailModule.Init()
+    If Not m_emailAvailable Then
+        With chkEmailSheets
+            .Caption = "Email workbooks after splitting (Unavailable: start Outlook first)"
+            .Enabled = False
+        End With
+        lblItemHeader.Enabled = False
+        lblEmailHeader.Enabled = False
+    End If
 End Sub
 
 Private Sub PopulateEmailsUI()

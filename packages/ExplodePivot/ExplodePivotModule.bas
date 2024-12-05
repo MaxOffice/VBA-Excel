@@ -7,6 +7,10 @@ Public Const EMPTYBACKCOLOR As Long = &HFFFFFF       ' White
 Public Const INVALIDBACKCOLOR As Long = &HC8C8FF     ' Red
 Public Const VALIDBACKCOLOR As Long = &HFFDCD        ' Green
 
+Public Sub ExplodePivotUIAction(button As IRibbonControl)
+    PivotFilterExplode
+End Sub
+
 Public Sub PivotFilterExplode()
     On Error GoTo PivotFilterExplodeErr
     
@@ -133,6 +137,7 @@ Public Sub PivotFilterExplode()
 
         MsgBox finalMessage, vbInformation + vbOKOnly, MACROTITLE
         
+        ExcelEmailModule.Dispose
         ' That's it
         Exit Sub
     End If
@@ -182,12 +187,48 @@ Public Sub PivotFilterExplode()
             
     MsgBox finalMessage, vbInformation + vbOKOnly, MACROTITLE
     
+    ExcelEmailModule.Dispose
+    
     ' That's it. Job done!!
     Exit Sub
     
 PivotFilterExplodeErr:
     MsgBox "Sorry. Something went wrong." & Err.Description & Err.Source, vbExclamation, MACROTITLE
+    ExcelEmailModule.Dispose
 End Sub
+
+' This function is required because the .VisibleItems
+' property of a PivotField does not work as expected.
+' Returns 0 if no valid field passed, -1 if the field does
+' not have multiple selections enabled, or the count of
+' selected items if multiple selections is enabled.
+Private Function SelectedItems(f As PivotField) As Integer
+    Dim result As Integer
+    If f Is Nothing Then
+        ' No field passed
+        result = 0
+    Else
+        ' Page field with multi-selection enabled
+        If f.EnableMultiplePageItems Then
+            ' Count the number of items
+            Dim item As PivotItem
+            result = 0
+            For Each item In f.PivotItems
+                If item.Visible Then
+                    result = result + 1
+                End If
+            Next
+            ' If (all) is selected, result is 0
+            If result = 0 Then
+                result = f.ParentItems.Count
+            End If
+        Else
+            ' Multi-selection not enabled
+            result = -1
+        End If
+    End If
+    SelectedItems = result
+End Function
 
 ' This function is called after moving each sheet of an exploded Pivot Table
 ' into a new workbook. It uses the .ShowDetails method to create a new sheet
@@ -283,10 +324,19 @@ Private Sub ProcessNewWorkbook(ByVal f As ExplodePivotForm, ByRef doNotEmail As 
                 Dim mailSubject As String
                 mailSubject = "Report for " & fieldName & " - " & newPivot.Name
                 
+                Dim attachmentName As String
+                If newWorkbook.Saved Then
+                    attachmentName = newWorkbook.FullName
+                Else
+                    attachmentName = Environ$("Temp") & "\" & fileName
+                    newWorkbook.SaveCopyAs attachmentName
+                End If
+                
                 On Error Resume Next
                 Err.Clear
                 
-                newWorkbook.SendMail Recipients:=recipient, Subject:=mailSubject
+                'newWorkbook.SendMail Recipients:=recipient, subject:=mailSubject
+                ExcelEmailModule.SendEmail recipient, mailSubject, mailSubject, attachmentName
                 
                 If Err.Number <> 0 Then
                     Dim proceed As VbMsgBoxResult
@@ -294,14 +344,11 @@ Private Sub ProcessNewWorkbook(ByVal f As ExplodePivotForm, ByRef doNotEmail As 
                         "An error occured while trying to email " & fileName & ":" & _
                         vbCrLf & Err.Description & _
                         vbCrLf & "Should I try to email the rest of the sheets?" & _
-                        vbCrLf & "Choose Cancel to stop the split operation completely", _
-                        vbInformation + vbYesNoCancel, _
+                        vbInformation + vbYesNo, _
                         MACROTITLE _
                     )
                     
-                    If proceed = vbCancel Then
-                        Exit Sub
-                    ElseIf proceed = vbNo Then
+                    If proceed = vbNo Then
                         doNotEmail = True
                     End If
                 End If
@@ -311,42 +358,4 @@ Private Sub ProcessNewWorkbook(ByVal f As ExplodePivotForm, ByRef doNotEmail As 
         End If
     End If
 End Sub
-
-' This function is required because the .VisibleItems
-' property of a PivotField does not work as expected.
-' Returns 0 if no valid field passed, -1 if the field does
-' not have multiple selections enabled, or the count of
-' selected items if multiple selections is enabled.
-Private Function SelectedItems(f As PivotField) As Integer
-    Dim result As Integer
-    If f Is Nothing Then
-        ' No field passed
-        result = 0
-    Else
-        ' Page field with multi-selection enabled
-        If f.EnableMultiplePageItems Then
-            ' Count the number of items
-            Dim item As PivotItem
-            result = 0
-            For Each item In f.PivotItems
-                If item.Visible Then
-                    result = result + 1
-                End If
-            Next
-            ' If (all) is selected, result is 0
-            If result = 0 Then
-                result = f.ParentItems.Count
-            End If
-        Else
-            ' Multi-selection not enabled
-            result = -1
-        End If
-    End If
-    SelectedItems = result
-End Function
-
-Public Sub ExplodePivotUIAction(button As IRibbonControl)
-    PivotFilterExplode
-End Sub
-
 
