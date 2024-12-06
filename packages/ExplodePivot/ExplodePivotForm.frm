@@ -176,11 +176,11 @@ Private Sub UserForm_Initialize()
     m_emailAvailable = ExcelEmailModule.Init()
     If Not m_emailAvailable Then
         With chkEmailSheets
-            .Caption = "Email workbooks after splitting (Unavailable: start Outlook first)"
             .Enabled = False
         End With
         lblItemHeader.Enabled = False
         lblEmailHeader.Enabled = False
+        lblEmailUnavailable.Visible = True
     End If
 End Sub
 
