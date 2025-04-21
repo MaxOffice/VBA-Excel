@@ -8,6 +8,14 @@ A package encapsulates a single functionality, or a set of related functionaliti
 
 Each subdirectory under the `packages` directory in this repository contains an independent package. Each package directory also has a `Tests` subdirectory, which contains a .xlsm file which has test cases and usage instructions for the package, as well as the package code.
 
+## Packages in the Repository
+
+* AmountToWords - A function to convert numbers to words
+* DrawData - A utility to convert a hand-drawn line chart into a table of data
+* ExplodePivot - A utility to split a pivot table into multiple independent spreadsheets
+* PasteAsPivot - A utility to paste a live link to data in a particular position in a Pivot table
+* RearrangeTableRows - A utility to move rows in an Excel table up or down
+
 ## Using these macros
 
 ### To use as an Excel Add-in (Recommended)
@@ -31,17 +39,3 @@ Each subdirectory under the `packages` directory in this repository contains an 
 1. Download the MaxOffice-Excel-Macros-Collection.xlsm file from the [latest release](https://github.com/MaxOffice/VBA-Excel/releases/latest).
 2. Open it, remembering to enable macro content. Keep it open.
 3. Invoke any macro from the Macros button on the View ribbon tab, or the Efficiency 365 tab installed by the file.
-
-### To use an individual package
-
-1. Download the .xlsm file in the package's `Tests` subdirectory.
-2. Open it, remembering to enable macro content.
-3. Invoke the macro from the Macros button on the View ribbon tab. 
-
-
-## To use packages of your choice
-
-1. Create or open a .xlsm file
-2. Use `File/Import File...` to import all files found directly under all your chosen package subdirectories. These may include `.bas`, `.cls`, `.frm` and `.frx` files. Do  not import anything in the `Tests` subdirectories. 
-3. Save the file, and keep it open.
-4. Invoke any macro from the Macros button on the View ribbon tab.
